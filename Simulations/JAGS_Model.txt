@@ -1,0 +1,25 @@
+model {
+for (i in 1:Npat) {
+    p[i,t_1v[i]] <- p1
+    Z[i,t_1v[i]] ~ dbin(mu[i,t_1v[i]],1)
+    logit(mu[i,t_1v[i]]) <- lambda[1] + lambda[2]*c[i,t_1v[i]]
+    c[i,t_1v[i]] ~ dbin(p[i,t_1v[i]],1)
+
+    for (t in (t_1v[i]+1):t_endv[i]){
+      Z[i,t] ~ dbin(mu[i,t],1)
+      logit(mu[i,t]) <- lambda[1]+lambda[2]*c[i,t]
+      c[i,t] ~ dbin(p[i,t],1)
+      logit(p[i,t]) <- beta[1] + beta[2]*c[i,(t-1)] + b[1,i] #+ beta[3]*TRT1[i]
+  }
+}
+
+  lambda[1]~dnorm(0,0.02)
+  lambda[2]~dunif(0,30)
+  for (i in 1:2){
+    beta[i]~dnorm(0,0.02)
+  }
+  for (i in 1:Npat){
+    b[1,i]~dnorm(0,0.02)
+  }
+  p1~dbeta(1,1)
+}
